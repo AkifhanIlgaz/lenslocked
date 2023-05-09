@@ -38,10 +38,8 @@ func pathHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", pathHandler)
-	// mux.HandleFunc("/contact", contactHandler)
+	http.HandleFunc("/", pathHandler)
 	fmt.Println("Starting the server on :3000")
 
-	http.ListenAndServe(":3000", mux)
+	http.ListenAndServe(":3000", nil)
 }
