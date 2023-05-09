@@ -26,22 +26,22 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	`)
 }
 
-// func pathHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.URL.Path {
-// 	case "/":
-// 		homeHandler(w, r)
-// 	case "/contact":
-// 		contactHandler(w, r)
-// 	default:
-// 		// w.WriteHeader(http.StatusNotFound)
-// 		// fmt.Fprint(w, "page not found")
+func pathHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/":
+		homeHandler(w, r)
+	case "/contact":
+		contactHandler(w, r)
+	default:
+		// w.WriteHeader(http.StatusNotFound)
+		// fmt.Fprint(w, "page not found")
 
-// 		// http.NotFound(w, r)
+		// http.NotFound(w, r)
 
-// 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 
-// 	}
-// }
+	}
+}
 
 type Router struct {
 }
@@ -64,9 +64,11 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var router Router
+	/*
+		http.Handler => Interface with the ServeHTTP method
+		http.HandlerFunc => A function type that has same arguments as ServeHTTP method. Also implements http.Handler interface
+	*/
 
 	fmt.Println("Starting the server on :3000")
-
-	http.ListenAndServe(":3000", router)
+	http.ListenAndServe(":3000", Router{})
 }
