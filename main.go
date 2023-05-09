@@ -26,10 +26,21 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	`)
 }
 
+func pathHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/":
+		homeHandler(w, r)
+	case "/contact":
+		contactHandler(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/contact", contactHandler)
+	mux.HandleFunc("/", pathHandler)
+	// mux.HandleFunc("/contact", contactHandler)
 	fmt.Println("Starting the server on :3000")
 
 	http.ListenAndServe(":3000", mux)
