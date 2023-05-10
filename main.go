@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 // Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers for all available HTTP headers
@@ -57,6 +58,28 @@ func main() {
 
 	r := chi.NewRouter()
 
+	// 2) Use built-in middleware for entire application
+	r.Use(middleware.Logger)
+
+	r.Group(func(r chi.Router) {
+		r.Get("/", homeHandler)
+		r.Get("/contact", contactHandler)
+		r.Get("/faq", faqHandler)
+		r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+			// w.WriteHeader(http.StatusNotFound)
+			// fmt.Fprint(w, "page not found")
+			// http.NotFound(w, r)
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.Logger)
+			r.Get("/logger", func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprint(w, "Logged for single route")
+			})
+		})
+	})
+
 	r.Get("/", homeHandler)
 	r.Get("/contact", contactHandler)
 	r.Get("/faq", faqHandler)
@@ -65,6 +88,17 @@ func main() {
 		// fmt.Fprint(w, "page not found")
 		// http.NotFound(w, r)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	})
+
+	// Chi exercises
+	// 1) Add a URL Parameter
+	r.Get("/contact/{way}", func(w http.ResponseWriter, r *http.Request) {
+		contactWay := chi.URLParam(r, "way")
+		if contactWay == "mail" {
+			fmt.Fprint(w, "<p> lenslocked@gmail.com </p>")
+		} else if contactWay == "phone" {
+			fmt.Fprint(w, "<p> +90 123 456 64 75 </p>")
+		}
 	})
 
 	fmt.Println("Starting the server on :3000")
