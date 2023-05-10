@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers for all available HTTP headers
@@ -47,33 +49,24 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
 `)
 }
 
-type Router struct {
-}
-
-func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		homeHandler(w, r)
-	case "/contact":
-		contactHandler(w, r)
-	case "/faq":
-		faqHandler(w, r)
-	default:
-		// w.WriteHeader(http.StatusNotFound)
-		// fmt.Fprint(w, "page not found")
-
-		// http.NotFound(w, r)
-
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	}
-}
-
 func main() {
 	/*
 		http.Handler => Interface with the ServeHTTP method
 		http.HandlerFunc => A function type that has same arguments as ServeHTTP method. Also implements http.Handler interface
 	*/
 
+	r := chi.NewRouter()
+
+	r.Get("/", homeHandler)
+	r.Get("/contact", contactHandler)
+	r.Get("/faq", faqHandler)
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		// w.WriteHeader(http.StatusNotFound)
+		// fmt.Fprint(w, "page not found")
+		// http.NotFound(w, r)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	})
+
 	fmt.Println("Starting the server on :3000")
-	http.ListenAndServe(":3000", Router{})
+	http.ListenAndServe(":3000", r)
 }
