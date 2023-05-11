@@ -10,17 +10,14 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers for all available HTTP headers
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func executeTemplate(w http.ResponseWriter, filePath string) {
 	// Header is just a map.  type Header map[string][]string
 	// Set() replaces any existing values for the key, Add() appends to existing values
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	// We use filepath.Join() to make our code operating system agnostic
 	// While Windows uses "\"(backslach) for path separator other popular operating systems use "/"(forward slash)
-	templatePath := filepath.Join("templates", "home_go.html")
-	t, err := template.ParseFiles(templatePath)
+	t, err := template.ParseFiles(filePath)
 	if err != nil {
 		log.Printf("parsing template: %v", err)
 		http.Error(w, "There was an error parsing template", http.StatusInternalServerError)
@@ -35,16 +32,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, `
-	 <h1>
-	 Contact Page 
-	  </h1>
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	templatePath := filepath.Join("templates", "home_go.html")
+	executeTemplate(w, templatePath)
+}
 
-	 <p>To get in touch, email me at <a href="mailto:akifhanilgaz@gmail.com">akifhanilgaz@gmail.com</a></p>
-	
-	`)
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+	templatePath := filepath.Join("templates", "contact_go.html")
+	executeTemplate(w, templatePath)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
