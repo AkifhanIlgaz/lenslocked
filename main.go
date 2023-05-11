@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -13,7 +16,23 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// Header is just a map.  type Header map[string][]string
 	// Set() replaces any existing values for the key, Add() appends to existing values
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, `<h1>Welcome to my awesome site</h1>`)
+
+	// We use filepath.Join() to make our code operating system agnostic
+	// While Windows uses "\"(backslach) for path separator other popular operating systems use "/"(forward slash)
+	templatePath := filepath.Join("templates", "home_go.html")
+	t, err := template.ParseFiles(templatePath)
+	if err != nil {
+		log.Printf("parsing template: %v", err)
+		http.Error(w, "There was an error parsing template", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, nil)
+	if err != nil {
+		log.Printf("executing template: %v", err)
+		http.Error(w, "There was an error executing template", http.StatusInternalServerError)
+		return
+	}
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
