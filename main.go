@@ -51,6 +51,12 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	/*
+		"gopls": {
+			"ui.SemanticTokens":  true
+		}
+	*/
+
+	/*
 		http.Handler => Interface with the ServeHTTP method
 		http.HandlerFunc => A function type that has same arguments as ServeHTTP method. Also implements http.Handler interface
 	*/
