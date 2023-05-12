@@ -6,13 +6,9 @@ import (
 )
 
 type User struct {
-	Name string
-	Age  int
-	Meta UserMeta
-}
-
-type UserMeta struct {
-	Visits int
+	Name  string
+	Age   int
+	Score int
 }
 
 func main() {
@@ -23,11 +19,9 @@ func main() {
 	}
 
 	user := User{
-		Name: "Susan Smith",
-		Age:  111,
-		Meta: UserMeta{
-			Visits: 4,
-		},
+		Name:  "Zozak",
+		Age:   111,
+		Score: 77,
 	}
 
 	err = t.Execute(os.Stdout, user)
