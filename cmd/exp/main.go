@@ -1,38 +1,28 @@
 package main
 
 import (
-	"html/template"
-	"os"
+	"errors"
+	"fmt"
 )
 
-type User struct {
-	Name    string
-	Age     int
-	Scores  []float64
-	Aliases map[string]string
+func main() {
+	err := B()
+	// TODO: Determine if the "err" variable is ErrNotFound
+	fmt.Println(errors.Is(errors.Unwrap(err), ErrNotFound))
+
 }
 
-func main() {
-	// Paths are relative to where we run our code from
-	t, err := template.ParseFiles("hello_go.html")
+var ErrNotFound = errors.New("not found")
+
+func A() error {
+	return ErrNotFound
+}
+
+func B() error {
+	err := A()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("b: %w", err)
 	}
 
-	user := User{
-		Name:   "Zozak",
-		Age:    111,
-		Scores: []float64{1.2, 3.4, 0.5, 77.3},
-		Aliases: map[string]string{
-			"Zozak":    "ZZK",
-			"Starknet": "STRK",
-			"Aptos":    "APT",
-		},
-	}
-
-	err = t.Execute(os.Stdout, user)
-
-	if err != nil {
-		panic(err)
-	}
+	return nil
 }
