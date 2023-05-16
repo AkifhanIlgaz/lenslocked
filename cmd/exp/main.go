@@ -8,7 +8,7 @@ import (
 func main() {
 	err := B()
 	// TODO: Determine if the "err" variable is ErrNotFound
-	fmt.Println(errors.Is(errors.Unwrap(err), ErrNotFound))
+	fmt.Println(errors.Is(err, ErrNotFound))
 
 }
 
