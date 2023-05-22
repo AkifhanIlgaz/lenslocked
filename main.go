@@ -25,6 +25,7 @@ func main() {
 	var usersC controllers.Users
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup_go.html", "tailwind_go.html"))
 	r.Get("/signup", usersC.New)
+	r.Post("/signup", usersC.Create)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		// w.WriteHeader(http.StatusNotFound)
