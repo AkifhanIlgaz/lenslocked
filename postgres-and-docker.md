@@ -1,4 +1,4 @@
-## Installing Docker
+## Docker
 
 ```bash
 # Make sure docker service is up and running
@@ -36,5 +36,16 @@ services:
 ```
 
 ```bash
-docker compose up
+# Starting to run on the background by "d" flag
+docker compose up -d
+```
+
+## Connecting to PostgreSQL
+
+> Run psql on container
+
+```bash
+docker compose exec [docker-flags] [image] [binary] [binary-flags]
+
+docker compose exec --interactive --tty db psql -U baloo -d lenslocked
 ```
