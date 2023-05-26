@@ -67,20 +67,25 @@ func main() {
 
 	fmt.Println("Tables created!")
 
-	name := "jon calhoun"
-	email := "jon@calhoun.io"
+	name := "zoz calhoun"
+	email := "zoz@calhoun.io"
 
 	// Insert some data to table
-	res, err := db.Exec(`
+	// We use QueryRow to get the ID of newly created record. Postgres doesn't support LastInsertedID method
+	row := db.QueryRow(`
 		INSERT INTO users(name, email) 
 		VALUES(
 			$1,
 			$2
-		);
+		) RETURNING id;
 	`, name, email)
+
+	// We don't need to check if row.Err() is nil since row.Scan() will return the error if it's not nil
+	var id int
+	err = row.Scan(&id)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("User created")
+	fmt.Println("User created", id)
 }
