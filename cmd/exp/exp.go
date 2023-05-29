@@ -21,7 +21,6 @@ func (cfg PostgresConfig) String() string {
 }
 
 func main() {
-
 	cfg := PostgresConfig{
 		Host:     "localhost",
 		Port:     "5432",
