@@ -67,25 +67,45 @@ func main() {
 
 	fmt.Println("Tables created!")
 
-	name := "zoz calhoun"
-	email := "zoz@calhoun.io"
+	// name := "zoz calhoun"
+	// email := "zoz@calhoun.io"
 
-	// Insert some data to table
-	// We use QueryRow to get the ID of newly created record. Postgres doesn't support LastInsertedID method
+	// // Insert some data to table
+	// // We use QueryRow to get the ID of newly created record. Postgres doesn't support LastInsertedID method
+	// row := db.QueryRow(`
+	// 	INSERT INTO users(name, email)
+	// 	VALUES(
+	// 		$1,
+	// 		$2
+	// 	) RETURNING id;
+	// `, name, email)
+
+	// // We don't need to check if row.Err() is nil since row.Scan() will return the error if it's not nil
+	// var id int
+	// err = row.Scan(&id)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// fmt.Println("User created", id)
+
+	id := 7
+	var name, email string
+
 	row := db.QueryRow(`
-		INSERT INTO users(name, email) 
-		VALUES(
-			$1,
-			$2
-		) RETURNING id;
-	`, name, email)
+	  SELECT email,name 
+	  FROM users
+	  WHERE id=$1;
+	`, id)
 
-	// We don't need to check if row.Err() is nil since row.Scan() will return the error if it's not nil
-	var id int
-	err = row.Scan(&id)
+	err = row.Scan(&name, &email)
+	if err == sql.ErrNoRows {
+		fmt.Println("No rows!")
+	}
+
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("User created", id)
+	fmt.Println(name, email)
 }
