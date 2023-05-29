@@ -45,7 +45,72 @@ func main() {
 
 	fmt.Println("Connected!")
 
-	// Create table
+	// Create Table
+	_, err = db.Exec(`
+		DROP TABLE IF EXISTS users;
+
+		CREATE TABLE users(
+			handle TEXT,
+			name TEXT UNIQUE NOT NULL,
+			bio TEXT
+		);
+
+		CREATE TABLE IF NOT EXISTS tweets(
+			id SERIAL PRIMARY KEY,
+			creator TEXT UNIQUE NOT NULL,
+			content TEXT NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS likes(
+			id INT,
+			liker TEXT
+		);
+	`)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Tables created")
+
+	// Insert some records
+
+	handle := "@AkifhanIlgaz"
+	name := "M. Akifhan Ilgaz"
+	bio := "Zozak"
+	_, err = db.Exec(`
+		INSERT INTO users(handle, name, bio)
+		VALUES (
+			$1,
+			$2,
+			$3
+		);
+	`, handle, name, bio)
+
+	if err != nil {
+		panic(err)
+	}
+
+	content := "Hello WORLD"
+
+	row := db.QueryRow(`
+		INSERT INTO tweets(creator, content)
+		VALUES(
+			$1,
+			$2
+		) RETURNING id;
+	`, handle, content)
+
+	var tweetID int
+
+	row.Scan(&tweetID)
+
+	fmt.Println("Newly created tweet id", tweetID)
+}
+
+/*
+
+// Create table
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users(
 			id SERIAL PRIMARY KEY,
@@ -67,7 +132,7 @@ func main() {
 
 	fmt.Println("Tables created!")
 
-	/*
+
 		Inserting records
 
 		name := "zoz calhoun"
@@ -91,9 +156,9 @@ func main() {
 		}
 
 		fmt.Println("User created", id)
-	*/
 
-	/*
+
+
 		Querying Single Record
 
 			id := 7
@@ -111,9 +176,9 @@ func main() {
 				panic(err)
 			}
 			fmt.Println(name, email)
-	*/
 
-	/*
+
+
 			Creating Multiple Records
 
 		userId := 1
@@ -134,7 +199,7 @@ func main() {
 		}
 
 		fmt.Println("Created fake orders!")
-	*/
+
 
 	type Order struct {
 		ID          int
@@ -177,3 +242,6 @@ func main() {
 
 	fmt.Println(orders)
 }
+
+
+*/
