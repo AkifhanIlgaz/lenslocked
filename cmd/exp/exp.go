@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -41,6 +44,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	secretKeyForHash := "secret-key"
+
+	password := "this is a totally secret password nobody will guess"
+
+	h := hmac.New(sha256.New, []byte(secretKeyForHash))
+
+	h.Write([]byte(password))
+
+	result := h.Sum(nil)
+
+	fmt.Println(hex.EncodeToString(result))
 
 }
 
