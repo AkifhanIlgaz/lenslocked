@@ -67,45 +67,68 @@ func main() {
 
 	fmt.Println("Tables created!")
 
-	// name := "zoz calhoun"
-	// email := "zoz@calhoun.io"
+	/*
+		Inserting records
 
-	// // Insert some data to table
-	// // We use QueryRow to get the ID of newly created record. Postgres doesn't support LastInsertedID method
-	// row := db.QueryRow(`
-	// 	INSERT INTO users(name, email)
-	// 	VALUES(
-	// 		$1,
-	// 		$2
-	// 	) RETURNING id;
-	// `, name, email)
+		name := "zoz calhoun"
+		email := "zoz@calhoun.io"
 
-	// // We don't need to check if row.Err() is nil since row.Scan() will return the error if it's not nil
-	// var id int
-	// err = row.Scan(&id)
-	// if err != nil {
-	// 	panic(err)
-	// }
+		// Insert some data to table
+		// We use QueryRow to get the ID of newly created record. Postgres doesn't support LastInsertedID method
+		row := db.QueryRow(`
+			INSERT INTO users(name, email)
+			VALUES(
+				$1,
+				$2
+			) RETURNING id;
+		`, name, email)
 
-	// fmt.Println("User created", id)
+		// We don't need to check if row.Err() is nil since row.Scan() will return the error if it's not nil
+		var id int
+		err = row.Scan(&id)
+		if err != nil {
+			panic(err)
+		}
 
-	id := 7
-	var name, email string
+		fmt.Println("User created", id)
+	*/
 
-	row := db.QueryRow(`
-	  SELECT email,name 
-	  FROM users
-	  WHERE id=$1;
-	`, id)
+	/*
+		Querying Single Record
 
-	err = row.Scan(&name, &email)
-	if err == sql.ErrNoRows {
-		fmt.Println("No rows!")
+			id := 7
+			var name, email string
+			row := db.QueryRow(`
+			  SELECT email,name
+			  FROM users
+			  WHERE id=$1;
+			`, id)
+			err = row.Scan(&name, &email)
+			if err == sql.ErrNoRows {
+				fmt.Println("No rows!")
+			}
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(name, email)
+	*/
+
+	userId := 1
+	for i := 1; i <= 5; i++ {
+		amount := i * 100
+		description := fmt.Sprintf("Fake order #%d", i)
+		_, err := db.Exec(`
+			INSERT INTO orders(user_id, amount, description) 
+			VALUES(
+				$1,
+				$2,
+				$3
+			);
+	`, userId, amount, description)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(name, email)
+	fmt.Println("Created fake orders!")
 }
