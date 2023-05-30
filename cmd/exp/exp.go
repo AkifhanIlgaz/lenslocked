@@ -1,12 +1,10 @@
 package main
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 
+	"github.com/AkifhanIlgaz/lenslocked/models"
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
@@ -45,18 +43,16 @@ func main() {
 		panic(err)
 	}
 
-	secretKeyForHash := "secret-key"
+	userService := models.UserService{
+		DB: db,
+	}
 
-	password := "this is a totally secret password nobody will guess"
+	jon, err := userService.Create("j2on@calhoun.io", "secret-password")
+	if err != nil {
+		panic(err)
+	}
 
-	h := hmac.New(sha256.New, []byte(secretKeyForHash))
-
-	h.Write([]byte(password))
-
-	result := h.Sum(nil)
-
-	fmt.Println(hex.EncodeToString(result))
-
+	fmt.Println(jon)
 }
 
 /*
