@@ -44,9 +44,6 @@ func main() {
 	r.Post("/signin", usersC.ProcessSignIn)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		// w.WriteHeader(http.StatusNotFound)
-		// fmt.Fprint(w, "page not found")
-		// http.NotFound(w, r)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 
