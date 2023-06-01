@@ -76,3 +76,18 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "User authenticated: %+v", user)
 }
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	emailCookie, err := r.Cookie("email")
+	if err != nil {
+		fmt.Fprint(w, "There is no cookie named email")
+		return
+	}
+
+	fmt.Fprintln(w, "Current user: ", emailCookie.Value)
+
+	for key, value := range r.Header {
+		fmt.Fprintf(w, "%v => %v\n", key, value)
+	}
+
+}
