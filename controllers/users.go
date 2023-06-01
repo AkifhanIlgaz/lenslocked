@@ -67,9 +67,10 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 
 	// Set cookies before writing to body
 	cookie := http.Cookie{
-		Name:  "email",
-		Value: user.Email,
-		Path:  "/",
+		Name:     "email",
+		Value:    user.Email,
+		Path:     "/",
+		HttpOnly: true, // Set this field to true to prevent XSS attacks via cookies
 	}
 
 	http.SetCookie(w, &cookie)
