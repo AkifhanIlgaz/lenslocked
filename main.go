@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/AkifhanIlgaz/lenslocked/controllers"
@@ -57,7 +58,17 @@ func main() {
 	)
 
 	fmt.Println("Starting the server on :3000")
-	http.ListenAndServe(":3000", csrfMiddleware(r))
+	http.ListenAndServe(":3000", ExerciseMiddleware(csrfMiddleware(r)))
+}
+
+func ExerciseMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		path := r.URL.Path
+		h.ServeHTTP(w, r)
+
+		log.Printf("%v made a request to %v", ip, path)
+	})
 }
 
 /*

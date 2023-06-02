@@ -80,6 +80,7 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	emailCookie, err := r.Cookie("email")
 	if err != nil {
+		// Cookie Exercises
 		u.SignIn(w, r)
 		return
 	}
