@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/AkifhanIlgaz/lenslocked/controllers"
 	"github.com/AkifhanIlgaz/lenslocked/models"
@@ -65,9 +66,10 @@ func ExerciseMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := r.RemoteAddr
 		path := r.URL.Path
+		start := time.Now()
 		h.ServeHTTP(w, r)
 
-		log.Printf("%v made a request to %v", ip, path)
+		log.Printf("%v made a request to %v. %v", ip, path, time.Since(start))
 	})
 }
 
