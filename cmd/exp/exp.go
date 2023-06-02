@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/AkifhanIlgaz/lenslocked/models"
@@ -19,16 +22,18 @@ func main() {
 		panic(err)
 	}
 
-	userService := models.UserService{
-		DB: db,
-	}
+	secret := "secret-key"
+	cookie := `{
+		"id": 123,
+		"email": "jon@calhoun.io"
+	}`
 
-	jon, err := userService.Create("j2o2n@calhoun.io", "secret-password")
-	if err != nil {
-		panic(err)
-	}
+	h := hmac.New(sha256.New, []byte(secret))
 
-	fmt.Println(jon)
+	h.Write([]byte(cookie))
+	result := h.Sum(nil)
+	fmt.Println(hex.EncodeToString(result))
+
 }
 
 /*
