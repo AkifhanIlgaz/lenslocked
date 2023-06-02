@@ -9,6 +9,7 @@ import (
 	"github.com/AkifhanIlgaz/lenslocked/templates"
 	"github.com/AkifhanIlgaz/lenslocked/views"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
 )
 
 func main() {
@@ -48,8 +49,15 @@ func main() {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 
+	csrfKey := "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX" // 32-byte auth key
+	csrfMiddleware := csrf.Protect(
+		[]byte(csrfKey),
+		// TODO: Fix this before deploying
+		csrf.Secure(false),
+	)
+
 	fmt.Println("Starting the server on :3000")
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":3000", csrfMiddleware(r))
 }
 
 /*
