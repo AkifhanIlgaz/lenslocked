@@ -1,11 +1,6 @@
 package main
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-
 	"github.com/AkifhanIlgaz/lenslocked/models"
 )
 
@@ -21,18 +16,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	secret := "secret-key"
-	cookie := `{
-		"id": 123,
-		"email": "jon@calhoun.io"
-	}`
-
-	h := hmac.New(sha256.New, []byte(secret))
-
-	h.Write([]byte(cookie))
-	result := h.Sum(nil)
-	fmt.Println(hex.EncodeToString(result))
 
 }
 
