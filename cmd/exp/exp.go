@@ -20,6 +20,15 @@ func main() {
 }
 
 /*
+	Create random numbers by using time.Now().UnixNano() and math/rand package
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	fmt.Println(r.Intn(100))
+	fmt.Println(r.Intn(100))
+	fmt.Println(r.Intn(100))
+*/
+
+/*
 	Create random 32-byte string for session tokens
 
 	n := 32
