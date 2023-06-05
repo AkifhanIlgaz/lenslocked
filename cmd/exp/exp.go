@@ -20,6 +20,25 @@ func main() {
 }
 
 /*
+	Create random 32-byte string for session tokens
+
+	n := 32
+	b := make([]byte, n)
+	fmt.Println(b)
+	numberRead, err := rand.Read(b)
+
+	if numberRead < n {
+		panic("Didn't read enough random bytes")
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(base64.URLEncoding.EncodeToString(b))
+*/
+
+/*
 
 // Create table
 	_, err = db.Exec(`
