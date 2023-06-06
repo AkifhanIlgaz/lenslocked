@@ -101,5 +101,5 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "Current user: ", user.Email)
+	fmt.Fprintln(w, "Current user: ", user.Email, user.PasswordHash)
 }
