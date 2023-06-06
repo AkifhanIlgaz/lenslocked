@@ -1,9 +1,9 @@
 package models
 
 import (
-	"crypto/hmac"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/AkifhanIlgaz/lenslocked/rand"
@@ -44,13 +44,10 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 	}
 
 	session := Session{
-		UserID: userID,
-		Token:  token,
+		UserID:    userID,
+		Token:     token,
+		TokenHash: ss.hash(token),
 	}
-
-	hash := hmac.New(sha256.New, []byte(token))
-	tokenHash := string(hash.Sum(nil))
-	session.TokenHash = tokenHash
 
 	row := ss.DB.QueryRow(`
 		INSERT INTO sessions(user_id, token_hash)
@@ -58,7 +55,7 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 			$1,
 			$2
 		) RETURNING id;
-	`, userID, tokenHash)
+	`, userID, session.TokenHash)
 
 	err = row.Scan(&session.ID)
 	if err != nil {
@@ -71,4 +68,9 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 func (ss *SessionService) User(token string) (*User, error) {
 	//  TODO: Implement SessionService.User
 	return nil, nil
+}
+
+func (ss *SessionService) hash(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return base64.URLEncoding.EncodeToString(hash[:])
 }
