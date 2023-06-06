@@ -1,6 +1,13 @@
 package models
 
-import "database/sql"
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"database/sql"
+	"fmt"
+
+	"github.com/AkifhanIlgaz/lenslocked/rand"
+)
 
 type Session struct {
 	ID     int
@@ -17,9 +24,34 @@ type SessionService struct {
 }
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
-	//  TODO: Create session token
-	//  TODO: Implement SessionService.Create
-	return nil, nil
+	token, err := rand.SessionToken()
+	if err != nil {
+		return nil, fmt.Errorf("create: %w", err)
+	}
+
+	session := Session{
+		UserID: userID,
+		Token:  token,
+	}
+
+	hash := hmac.New(sha256.New, []byte(token))
+	tokenHash := string(hash.Sum(nil))
+	session.TokenHash = tokenHash
+
+	row := ss.DB.QueryRow(`
+		INSERT INTO sessions(user_id, token_hash)
+		VALUES (
+			$1,
+			$2
+		) RETURNING id;
+	`, userID, tokenHash)
+
+	err = row.Scan(&session.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &session, nil
 }
 
 func (ss *SessionService) User(token string) (*User, error) {
