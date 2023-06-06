@@ -54,12 +54,13 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 		VALUES (
 			$1,
 			$2
-		) RETURNING id;
-	`, userID, session.TokenHash)
+		) 
+		RETURNING id;
+	`, session.UserID, session.TokenHash)
 
 	err = row.Scan(&session.ID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create: %w", err)
 	}
 
 	return &session, nil
