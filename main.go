@@ -47,6 +47,7 @@ func main() {
 		UserService:    &userService,
 		SessionService: &sessionService,
 	}
+
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup_go.html", "tailwind_go.html"))
 	usersC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "signin_go.html", "tailwind_go.html"))
 	r.Get("/signup", usersC.New)
@@ -60,6 +61,10 @@ func main() {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 
+	umw := controllers.UserMiddleware{
+		SessionService: &sessionService,
+	}
+
 	csrfKey := "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX" // 32-byte auth key
 	csrfMiddleware := csrf.Protect(
 		[]byte(csrfKey),
@@ -68,27 +73,11 @@ func main() {
 	)
 
 	fmt.Println("Starting the server on :3000")
-	http.ListenAndServe(":3000", csrfMiddleware(r))
+	http.ListenAndServe(":3000", csrfMiddleware(umw.SetUser(r)))
 }
-
-// func ExerciseMiddleware(h http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		ip := r.RemoteAddr
-// 		path := r.URL.Path
-// 		start := time.Now()
-// 		h.ServeHTTP(w, r)
-
-// 		log.Printf("%v made a request to %v. %v", ip, path, time.Since(start))
-// 	})
-// }
 
 /*
 	"gopls": {
 		"ui.SemanticTokens":  true
 	}
-*/
-
-/*
-	http.Handler => Interface with the ServeHTTP method
-	http.HandlerFunc => A function type that has same arguments as ServeHTTP method. Also implements http.Handler interface
 */
