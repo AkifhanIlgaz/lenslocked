@@ -5,11 +5,27 @@ import (
 	"fmt"
 )
 
+// Type and constants for context keys must be unexported
+
+type ctxKey string
+
+const (
+	favoriteColorKey ctxKey = "fav-color"
+)
+
 func main() {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "fav-color", "purple")
-	value := ctx.Value("fav-color")
-	fmt.Println(value)
+
+	// We set the color to purple
+	ctx = context.WithValue(ctx, favoriteColorKey, "purple")
+
+	// Some other package writes a favorite-color
+	ctx = context.WithValue(ctx, "favorite-color", 123)
+
+	value1 := ctx.Value(favoriteColorKey)
+	value2 := ctx.Value("favorite-color")
+
+	fmt.Println(value1, value2)
 }
 
 /*
