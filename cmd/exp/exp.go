@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
 // Type and constants for context keys must be unexported
@@ -19,13 +20,21 @@ func main() {
 	// We set the color to purple
 	ctx = context.WithValue(ctx, favoriteColorKey, "purple")
 
-	// Some other package writes a favorite-color
-	ctx = context.WithValue(ctx, "favorite-color", 123)
+	value := ctx.Value(favoriteColorKey)
 
-	value1 := ctx.Value(favoriteColorKey)
-	value2 := ctx.Value("favorite-color")
+	// If ok is false intValue is set to zero value of int type
+	if intValue, ok := value.(int); !ok {
+		fmt.Println("It isn't an int")
+	} else {
+		fmt.Println(intValue + 4)
+	}
 
-	fmt.Println(value1, value2)
+	if strValue, ok := value.(string); !ok {
+		fmt.Println("It isn't a string")
+	} else {
+		fmt.Println(strings.HasPrefix(strValue, "b"))
+	}
+
 }
 
 /*
