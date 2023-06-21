@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/AkifhanIlgaz/lenslocked/context"
+	"github.com/AkifhanIlgaz/lenslocked/models"
 	"github.com/gorilla/csrf"
 )
 
@@ -24,6 +26,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 	tpl = tpl.Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
 			return `<!-- Please implement this function -->`, fmt.Errorf("csrfField isn't implemented")
+		},
+		"currentUser": func() (template.HTML, error) {
+			return "", fmt.Errorf("currentUser not implemented")
 		},
 	})
 
@@ -59,6 +64,9 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any) {
 	tpl = tpl.Funcs(template.FuncMap{
 		"csrfField": func() template.HTML {
 			return csrf.TemplateField(r)
+		},
+		"currentUser": func() *models.User {
+			return context.User(r.Context())
 		},
 	})
 
