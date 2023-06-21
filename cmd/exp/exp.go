@@ -1,9 +1,11 @@
 package main
 
 import (
-	"context"
+	stdctx "context"
 	"fmt"
-	"strings"
+
+	"github.com/AkifhanIlgaz/lenslocked/context"
+	"github.com/AkifhanIlgaz/lenslocked/models"
 )
 
 // Type and constants for context keys must be unexported
@@ -15,26 +17,18 @@ const (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx := stdctx.Background()
 
-	// We set the color to purple
-	ctx = context.WithValue(ctx, favoriteColorKey, "purple")
-
-	value := ctx.Value(favoriteColorKey)
-
-	// If ok is false intValue is set to zero value of int type
-	if intValue, ok := value.(int); !ok {
-		fmt.Println("It isn't an int")
-	} else {
-		fmt.Println(intValue + 4)
+	user := models.User{
+		ID:           1,
+		Email:        "jon@calhoun.io",
+		PasswordHash: "sdf23ikjsdf",
 	}
 
-	if strValue, ok := value.(string); !ok {
-		fmt.Println("It isn't a string")
-	} else {
-		fmt.Println(strings.HasPrefix(strValue, "b"))
-	}
+	ctx = context.WithUser(ctx, &user)
 
+	retrievedUser := context.User(ctx)
+	fmt.Println(retrievedUser.Email)
 }
 
 /*
