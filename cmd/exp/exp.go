@@ -1,10 +1,21 @@
 package main
 
 import (
-	"github.com/AkifhanIlgaz/lenslocked/models"
+	"context"
+	"fmt"
 )
 
 func main() {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "fav-color", "purple")
+	value := ctx.Value("fav-color")
+	fmt.Println(value)
+}
+
+/*
+
+		Connect to Postgres
+
 	db, err := models.Open(models.DefaultPostgresConfig())
 	if err != nil {
 		panic(err)
@@ -17,7 +28,7 @@ func main() {
 		panic(err)
 	}
 
-}
+*/
 
 /*
 	Create random numbers by using time.Now().UnixNano() and math/rand package
