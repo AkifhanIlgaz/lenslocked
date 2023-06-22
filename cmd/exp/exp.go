@@ -1,9 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/go-mail/mail/v2"
+)
+
+const (
+	host     = "sandbox.smtp.mailtrap.io"
+	port     = 587
+	username = "0073d033a082b8"
+	password = "447d119aba69d3"
 )
 
 func main() {
@@ -19,8 +27,14 @@ func main() {
 	msg.SetHeader("Subject", subject)
 	msg.SetBody("text/plain", plaintext)
 	msg.AddAlternative("text/html", html)
-
 	msg.WriteTo(os.Stdout)
+
+	dialer := mail.NewDialer(host, port, username, password)
+	err := dialer.DialAndSend(msg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Message sent")
 }
 
 /*
