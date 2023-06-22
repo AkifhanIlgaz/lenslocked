@@ -1,34 +1,26 @@
 package main
 
 import (
-	stdctx "context"
-	"fmt"
+	"os"
 
-	"github.com/AkifhanIlgaz/lenslocked/context"
-	"github.com/AkifhanIlgaz/lenslocked/models"
-)
-
-// Type and constants for context keys must be unexported
-
-type ctxKey string
-
-const (
-	favoriteColorKey ctxKey = "fav-color"
+	"github.com/go-mail/mail/v2"
 )
 
 func main() {
-	ctx := stdctx.Background()
+	from := "test@lenslocked.com"
+	to := "jon@calhoun.io"
+	subject := "This is a test email"
+	plaintext := "This is the body of the email"
+	html := `<h1>Hello there buddy!</h1><p>This is the email</p><p>Hope you enjoy it</p> `
 
-	user := models.User{
-		ID:           1,
-		Email:        "jon@calhoun.io",
-		PasswordHash: "sdf23ikjsdf",
-	}
+	msg := mail.NewMessage()
+	msg.SetHeader("To", to)
+	msg.SetHeader("From", from)
+	msg.SetHeader("Subject", subject)
+	msg.SetBody("text/plain", plaintext)
+	msg.AddAlternative("text/html", html)
 
-	ctx = context.WithUser(ctx, &user)
-
-	retrievedUser := context.User(ctx)
-	fmt.Println(retrievedUser.Email)
+	msg.WriteTo(os.Stdout)
 }
 
 /*
