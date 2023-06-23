@@ -55,6 +55,7 @@ func main() {
 
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup_go.html", "tailwind_go.html"))
 	usersC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "signin_go.html", "tailwind_go.html"))
+	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-password_go.html", "tailwind_go.html"))
 
 	// Setup router and routes
 	r := chi.NewRouter()
@@ -83,6 +84,8 @@ func main() {
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
+	r.Get("/forgot-pw", usersC.ForgotPassword)
+	r.Post("/forgot-pw", usersC.ProcessForgotPassword)
 
 	// Start server
 	fmt.Println("Starting the server on :3000")
