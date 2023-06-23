@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/AkifhanIlgaz/lenslocked/controllers"
 	"github.com/AkifhanIlgaz/lenslocked/migrations"
@@ -11,12 +13,52 @@ import (
 	"github.com/AkifhanIlgaz/lenslocked/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/csrf"
+	"github.com/joho/godotenv"
 )
 
+type config struct {
+	PSQL models.PostgresConfig
+	SMTP models.SMTPConfig
+	CSRF struct {
+		Key    string
+		Secure bool
+	}
+	Server struct {
+		Address string
+	}
+}
+
+func loadEnvConfig() (config, error) {
+	var cfg config
+	err := godotenv.Load()
+	if err != nil {
+		return cfg, err
+	}
+
+	cfg.PSQL = models.DefaultPostgresConfig()
+	cfg.SMTP.Host = os.Getenv("SMTP_HOST")
+	cfg.SMTP.Port, err = strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		return cfg, err
+	}
+	cfg.SMTP.Username = os.Getenv("SMTP_USERNAME")
+	cfg.SMTP.Password = os.Getenv("SMTP_PASSWORD")
+
+	cfg.CSRF.Key = "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"
+	cfg.CSRF.Secure = false
+	cfg.Server.Address = ":3000"
+	return cfg, nil
+
+}
+
 func main() {
+	cfg, err := loadEnvConfig()
+	if err != nil {
+		panic(err)
+	}
 
 	// Setup the database
-	db, err := models.Open(models.DefaultPostgresConfig())
+	db, err := models.Open(cfg.PSQL)
 	if err != nil {
 		panic(err)
 	}
@@ -28,29 +70,33 @@ func main() {
 	}
 
 	// Setup the services
-	userService := models.UserService{
+	userService := &models.UserService{
 		DB: db,
 	}
-	sessionService := models.SessionService{
+	sessionService := &models.SessionService{
 		DB: db,
 	}
+	passwordResetService := &models.PasswordResetService{
+		DB: db,
+	}
+	emailService := models.NewEmailService(cfg.SMTP)
 
 	// Setup middlewares
 	umw := controllers.UserMiddleware{
-		SessionService: &sessionService,
+		SessionService: sessionService,
 	}
 
-	csrfKey := "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX" // 32-byte auth key
 	csrfMiddleware := csrf.Protect(
-		[]byte(csrfKey),
-		// TODO: Fix this before deploying
-		csrf.Secure(false),
+		[]byte(cfg.CSRF.Key),
+		csrf.Secure(cfg.CSRF.Secure),
 	)
 
 	// Setup controllers
 	usersC := controllers.Users{
-		UserService:    &userService,
-		SessionService: &sessionService,
+		UserService:          userService,
+		SessionService:       sessionService,
+		EmailService:         emailService,
+		PasswordResetService: passwordResetService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup_go.html", "tailwind_go.html"))
@@ -88,8 +134,11 @@ func main() {
 	r.Post("/forgot-pw", usersC.ProcessForgotPassword)
 
 	// Start server
-	fmt.Println("Starting the server on :3000")
-	http.ListenAndServe(":3000", r)
+	fmt.Println("Starting the server on", cfg.Server.Address)
+	err = http.ListenAndServe(cfg.Server.Address, r)
+	if err != nil {
+		panic(err)
+	}
 }
 
 /*
