@@ -86,7 +86,7 @@ func (service *GalleryService) ByUserId(userId int) ([]Gallery, error) {
 	}
 
 	if rows.Err() != nil {
-		return nil, fmt.Errorf("query galleris by user id: %w", err)
+		return nil, fmt.Errorf("query galleries by user id: %w", err)
 	}
 
 	return galleries, nil
