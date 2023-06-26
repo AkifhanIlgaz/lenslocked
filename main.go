@@ -92,6 +92,7 @@ func main() {
 	csrfMiddleware := csrf.Protect(
 		[]byte(cfg.CSRF.Key),
 		csrf.Secure(cfg.CSRF.Secure),
+		csrf.Path("/"),
 	)
 
 	// Setup controllers
@@ -158,6 +159,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(umw.RequireUser)
 			r.Get("/new", galleriesC.New)
+			r.Post("/", galleriesC.Create)
 		})
 	})
 
