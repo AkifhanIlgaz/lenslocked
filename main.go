@@ -127,6 +127,10 @@ func main() {
 		templates.FS,
 		"galleries-edit_go.html", "tailwind_go.html",
 	))
+	galleriesC.Templates.Index = views.Must(views.ParseFS(
+		templates.FS,
+		"galleries-index_go.html", "tailwind_go.html",
+	))
 
 	// Setup router and routes
 	r := chi.NewRouter()
