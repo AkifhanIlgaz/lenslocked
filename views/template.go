@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/AkifhanIlgaz/lenslocked/context"
 	"github.com/AkifhanIlgaz/lenslocked/models"
@@ -26,7 +27,7 @@ func Must(t Template, err error) Template {
 }
 
 func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
-	tpl := template.New(patterns[0])
+	tpl := template.New(filepath.Base(patterns[0]))
 	tpl = tpl.Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
 			return `<!-- Please implement this function -->`, fmt.Errorf("csrfField isn't implemented")
