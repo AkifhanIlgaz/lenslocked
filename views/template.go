@@ -14,6 +14,10 @@ import (
 	"github.com/gorilla/csrf"
 )
 
+type public interface {
+	Public() string
+}
+
 func Must(t Template, err error) Template {
 	if err != nil {
 		panic(err)
@@ -55,6 +59,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any, errs
 		return
 	}
 
+	errMsgs := errMessages(errs...)
 	tpl = tpl.Funcs(template.FuncMap{
 		"csrfField": func() template.HTML {
 			return csrf.TemplateField(r)
@@ -63,11 +68,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any, errs
 			return context.User(r.Context())
 		},
 		"errors": func() []string {
-			var errMessages []string
-			for _, err := range errs {
-				errMessages = append(errMessages, err.Error())
-			}
-			return errMessages
+			return errMsgs
 		},
 	})
 
@@ -93,4 +94,17 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any, errs
 
 	io.Copy(w, &buff)
 	// w.Write(buff.Bytes())
+}
+
+func errMessages(errs ...error) []string {
+	var messages []string
+	for _, err := range errs {
+		if pErr, ok := err.(public); ok {
+			messages = append(messages, pErr.Public())
+		} else {
+			fmt.Println(err)
+			messages = append(messages, "Something went wrong!")
+		}
+	}
+	return messages
 }
