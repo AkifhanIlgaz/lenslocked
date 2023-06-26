@@ -50,14 +50,8 @@ func (g Galleries) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
-	gallery, err := g.galleryById(w, r)
+	gallery, err := g.galleryById(w, r, userMustOwnGallery)
 	if err != nil {
-		return
-	}
-
-	user := context.User(r.Context())
-	if user.ID != gallery.UserId {
-		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
 		return
 	}
 
@@ -73,14 +67,8 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g Galleries) Update(w http.ResponseWriter, r *http.Request) {
-	gallery, err := g.galleryById(w, r)
+	gallery, err := g.galleryById(w, r, userMustOwnGallery)
 	if err != nil {
-		return
-	}
-
-	user := context.User(r.Context())
-	if user.ID != gallery.UserId {
-		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
 		return
 	}
 
@@ -141,7 +129,9 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	g.Templates.Show.Execute(w, r, data)
 }
 
-func (g Galleries) galleryById(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
+type galleryOpt func(http.ResponseWriter, *http.Request, *models.Gallery) error
+
+func (g Galleries) galleryById(w http.ResponseWriter, r *http.Request, opts ...galleryOpt) (*models.Gallery, error) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusNotFound)
@@ -158,5 +148,21 @@ func (g Galleries) galleryById(w http.ResponseWriter, r *http.Request) (*models.
 		return nil, err
 	}
 
+	for _, opt := range opts {
+		err = opt(w, r, gallery)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return gallery, nil
+}
+
+func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
+	user := context.User(r.Context())
+	if user.ID != gallery.UserId {
+		http.Error(w, "You are not authorized to edit this gallery", http.StatusForbidden)
+		return fmt.Errorf("user does not have access to this gallery")
+	}
+	return nil
 }
