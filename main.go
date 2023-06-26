@@ -120,7 +120,7 @@ func main() {
 
 	galleriesC.Templates.New = views.Must(views.ParseFS(
 		templates.FS,
-		"galleries/new_go.html", "tailwind_go.html",
+		"galleries-new_go.html", "tailwind_go.html",
 	))
 
 	// Setup router and routes
