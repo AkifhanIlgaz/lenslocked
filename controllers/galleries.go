@@ -113,7 +113,7 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Image struct {
-		GalleryId int
+		GalleryID int
 		Filename  string
 	}
 
@@ -133,7 +133,7 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 
 	for _, img := range images {
 		data.Images = append(data.Images, Image{
-			GalleryId: img.GalleryID,
+			GalleryID: img.GalleryID,
 			Filename:  img.Filename,
 		})
 	}
@@ -186,6 +186,36 @@ func (g Galleries) galleryById(w http.ResponseWriter, r *http.Request, opts ...g
 
 func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 	filename := chi.URLParam(r, "filename")
+	galleryID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusNotFound)
+		return
+	}
+
+	images, err := g.GalleryService.Images(galleryID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	var requestedImage models.Image
+	imageFound := false
+
+	for _, img := range images {
+		if img.Filename == filename {
+			requestedImage = img
+			imageFound = true
+			break
+		}
+	}
+
+	if !imageFound {
+		http.Error(w, "Image not found!", http.StatusNotFound)
+		return
+	}
+
+	http.ServeFile(w, r, requestedImage.Path)
 }
 
 func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
