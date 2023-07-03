@@ -189,9 +189,3 @@ func main() {
 		panic(err)
 	}
 }
-
-/*
-	"gopls": {
-		"ui.SemanticTokens":  true
-	}
-*/
