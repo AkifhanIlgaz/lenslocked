@@ -9,7 +9,9 @@ import (
 )
 
 type Image struct {
-	Path string
+	GalleryID int
+	Path      string
+	Filename  string
 }
 
 type Gallery struct {
@@ -27,7 +29,6 @@ type GalleryService struct {
 }
 
 func (service *GalleryService) Images(galleryId int) ([]Image, error) {
-	// TODO: Implement this
 	globPattern := filepath.Join(service.galleryDir(galleryId), "*")
 	allFiles, err := filepath.Glob(globPattern)
 	if err != nil {
@@ -38,7 +39,11 @@ func (service *GalleryService) Images(galleryId int) ([]Image, error) {
 	extensions := service.extensions()
 	for _, file := range allFiles {
 		if hasExtension(file, extensions) {
-			imagePaths = append(imagePaths, Image{Path: file})
+			imagePaths = append(imagePaths, Image{
+				GalleryID: galleryId,
+				Path:      file,
+				Filename:  filepath.Base(file),
+			})
 		}
 	}
 
