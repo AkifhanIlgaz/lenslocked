@@ -69,6 +69,20 @@ func (service *GalleryService) Image(galleryID int, filename string) (Image, err
 	}, nil
 }
 
+func (service *GalleryService) DeleteImage(galleryId int, filename string) error {
+	image, err := service.Image(galleryId, filename)
+	if err != nil {
+		return fmt.Errorf("delete image: %w", err)
+	}
+
+	err = os.Remove(image.Path)
+	if err != nil {
+		return fmt.Errorf("delete image: %w", err)
+	}
+
+	return nil
+}
+
 func hasExtension(file string, extensions []string) bool {
 	for _, ext := range extensions {
 		file = strings.ToLower(file)

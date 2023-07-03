@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/AkifhanIlgaz/lenslocked/context"
@@ -54,14 +55,33 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
-		ID    int
-		Title string
-	}{
-		ID:    gallery.Id,
-		Title: gallery.Title,
+	type Image struct {
+		GalleryID       int
+		Filename        string
+		FilenameEscaped string
 	}
 
+	var data struct {
+		ID     int
+		Title  string
+		Images []Image
+	}
+
+	data.ID = gallery.Id
+	data.Title = gallery.Title
+	images, err := g.GalleryService.Images(gallery.Id)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	for _, image := range images {
+		data.Images = append(data.Images, Image{
+			GalleryID:       image.GalleryID,
+			Filename:        image.Filename,
+			FilenameEscaped: url.PathEscape(image.Filename),
+		})
+	}
 	g.Templates.Edit.Execute(w, r, data)
 }
 
@@ -113,8 +133,9 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Image struct {
-		GalleryID int
-		Filename  string
+		GalleryID       int
+		Filename        string
+		FileNameEscaped string
 	}
 
 	var data struct {
@@ -122,6 +143,7 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 		Title  string
 		Images []Image
 	}
+
 	data.Id = gallery.Id
 	data.Title = gallery.Title
 	images, err := g.GalleryService.Images(gallery.Id)
@@ -133,8 +155,9 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 
 	for _, img := range images {
 		data.Images = append(data.Images, Image{
-			GalleryID: img.GalleryID,
-			Filename:  img.Filename,
+			GalleryID:       img.GalleryID,
+			Filename:        img.Filename,
+			FileNameEscaped: url.PathEscape(img.Filename),
 		})
 	}
 
