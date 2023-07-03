@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -48,6 +49,24 @@ func (service *GalleryService) Images(galleryId int) ([]Image, error) {
 	}
 
 	return imagePaths, nil
+}
+
+func (service *GalleryService) Image(galleryID int, filename string) (Image, error) {
+	imagePath := filepath.Join(service.galleryDir(galleryID), filename)
+
+	_, err := os.Stat(imagePath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return Image{}, ErrNotFound
+		}
+		return Image{}, fmt.Errorf("query image: %w", err)
+	}
+
+	return Image{
+		Filename:  filename,
+		GalleryID: galleryID,
+		Path:      imagePath,
+	}, nil
 }
 
 func hasExtension(file string, extensions []string) bool {

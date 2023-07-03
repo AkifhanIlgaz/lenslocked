@@ -192,30 +192,18 @@ func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	images, err := g.GalleryService.Images(galleryID)
+	img, err := g.GalleryService.Image(galleryID, filename)
 	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			http.Error(w, "Image not found", http.StatusNotFound)
+			return
+		}
 		fmt.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 
-	var requestedImage models.Image
-	imageFound := false
-
-	for _, img := range images {
-		if img.Filename == filename {
-			requestedImage = img
-			imageFound = true
-			break
-		}
-	}
-
-	if !imageFound {
-		http.Error(w, "Image not found!", http.StatusNotFound)
-		return
-	}
-
-	http.ServeFile(w, r, requestedImage.Path)
+	http.ServeFile(w, r, img.Path)
 }
 
 func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
