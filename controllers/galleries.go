@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -113,17 +112,30 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	type Image struct {
+		GalleryId int
+		Filename  string
+	}
+
 	var data struct {
 		Id     int
 		Title  string
-		Images []string
+		Images []Image
 	}
 	data.Id = gallery.Id
 	data.Title = gallery.Title
-	for i := 0; i < 20; i++ {
-		w, h := rand.Intn(500)+200, rand.Intn(500)+200
-		catImageURL := fmt.Sprintf("https://placekitten.com/%d/%d", w, h)
-		data.Images = append(data.Images, catImageURL)
+	images, err := g.GalleryService.Images(gallery.Id)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	for _, img := range images {
+		data.Images = append(data.Images, Image{
+			GalleryId: img.GalleryID,
+			Filename:  img.Filename,
+		})
 	}
 
 	g.Templates.Show.Execute(w, r, data)
@@ -170,6 +182,10 @@ func (g Galleries) galleryById(w http.ResponseWriter, r *http.Request, opts ...g
 	}
 
 	return gallery, nil
+}
+
+func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
+	filename := chi.URLParam(r, "filename")
 }
 
 func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
