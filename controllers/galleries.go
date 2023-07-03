@@ -229,6 +229,24 @@ func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, img.Path)
 }
 
+func (g Galleries) DeleteImage(w http.ResponseWriter, r *http.Request) {
+	filename := chi.URLParam(r, "filename")
+	gallery, err := g.galleryById(w, r, userMustOwnGallery)
+	if err != nil {
+		return
+	}
+
+	err = g.GalleryService.DeleteImage(gallery.Id, filename)
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.Id)
+
+	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
 func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
 	user := context.User(r.Context())
 	if user.ID != gallery.UserId {
