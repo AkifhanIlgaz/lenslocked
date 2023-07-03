@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"path/filepath"
 )
 
 type Gallery struct {
@@ -14,6 +15,20 @@ type Gallery struct {
 
 type GalleryService struct {
 	DB *sql.DB
+	// ImagesDir is used to tell GalleryService where to store and locate images.
+	// If not set, GalleryService will use "images" by default.
+	// Make sure to add new custom ImagesDir to .gitignore file if you use custom ImagesDir
+	ImagesDir string
+}
+
+func (service GalleryService) galleryDir(id int) string {
+	imagesDir := service.ImagesDir
+
+	if imagesDir == "" {
+		imagesDir = "images"
+	}
+
+	return filepath.Join(imagesDir, fmt.Sprintf("gallery-%d", id))
 }
 
 func (service *GalleryService) Create(userId int, title string) (*Gallery, error) {
