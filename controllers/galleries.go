@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -262,7 +261,6 @@ func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fileHeaders := r.MultipartForm.File["images"]
-
 	for _, fileHeader := range fileHeaders {
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -271,9 +269,14 @@ func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		fmt.Printf("Attempting to upload %v for gallery %d\n", fileHeader.Filename, gallery.Id)
-		io.Copy(w, file)
+		err = g.GalleryService.CreateImage(gallery.Id, fileHeader.Filename, file)
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
 	}
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.Id)
+	http.Redirect(w, r, editPath, http.StatusFound)
 
 }
 
