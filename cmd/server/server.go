@@ -69,16 +69,24 @@ func main() {
 		panic(err)
 	}
 
-	// Setup the database
-	db, err := models.Open(cfg.PSQL)
+	err = run(cfg)
 	if err != nil {
 		panic(err)
+	}
+	// Setup the database
+
+}
+
+func run(cfg config) error {
+	db, err := models.Open(cfg.PSQL)
+	if err != nil {
+		return err
 	}
 	defer db.Close()
 
 	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Setup the services
@@ -198,10 +206,6 @@ func main() {
 	assetsHandler := http.FileServer(http.Dir("assets"))
 	r.Get("/assets/*", http.StripPrefix("/assets", assetsHandler).ServeHTTP)
 
-	// Start server
-	fmt.Println("Starting the server on", cfg.Server.Address)
-	err = http.ListenAndServe(cfg.Server.Address, r)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Printf("Starting the server on %s...\n", cfg.Server.Address)
+	return http.ListenAndServe(cfg.Server.Address, r)
 }
