@@ -195,6 +195,9 @@ func main() {
 		})
 	})
 
+	assetsHandler := http.FileServer(http.Dir("assets"))
+	r.Get("/assets/*", http.StripPrefix("/assets", assetsHandler).ServeHTTP)
+
 	// Start server
 	fmt.Println("Starting the server on", cfg.Server.Address)
 	err = http.ListenAndServe(cfg.Server.Address, r)
